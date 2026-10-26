@@ -1,0 +1,475 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speak2Career | Self Introduction</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1e293b;
+    }
+
+    header {
+      background: #172554;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+    }
+
+    main {
+      width: 90%;
+      max-width: 750px;
+      margin: 30px auto;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #172554;
+    }
+
+    .question {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 14px;
+      border-radius: 6px;
+      line-height: 1.6;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      padding: 14px;
+      margin-top: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 16px;
+      resize: vertical;
+    }
+
+    button {
+      border: none;
+      padding: 12px 16px;
+      margin: 6px 4px 6px 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .secondary {
+      background: #475569;
+    }
+
+    .danger {
+      background: #b91c1c;
+    }
+
+    .feedback {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .score {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1d4ed8;
+    }
+
+    #status {
+      color: #475569;
+      font-size: 14px;
+    }
+
+    ul {
+      line-height: 1.8;
+      padding-left: 22px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Speak2Career</h1>
+    <p>Self Introduction Practice</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Practice Your Introduction</h2>
+
+      <p class="question" id="question">
+        Tell me about yourself.
+      </p>
+
+      <button type="button" onclick="listenQuestion()">
+        Listen to Question
+      </button>
+
+      <label for="answer">
+        <strong>Your Answer</strong>
+      </label>
+
+      <textarea
+        id="answer"
+        placeholder="Type your answer here, or use Start Speaking..."
+      ></textarea>
+
+      <p id="status">Ready to practise.</p>
+
+      <button type="button" onclick="startSpeaking()">
+        Start Speaking
+      </button>
+
+      <button
+        type="button"
+        class="secondary"
+        onclick="stopSpeaking()"
+      >
+        Stop Speaking
+      </button>
+
+      <button type="button" onclick="saveAnswer()">
+        Check Answer & Save
+      </button>
+
+      <button
+        type="button"
+        class="secondary"
+        onclick="clearAnswer()"
+      >
+        Clear Answer
+      </button>
+
+      <button
+        type="button"
+        class="secondary"
+        onclick="goDashboard()"
+      >
+        Back to Dashboard
+      </button>
+    </section>
+
+    <section class="card">
+      <h2>Your Practice Feedback</h2>
+
+      <div class="feedback" aria-live="polite">
+        <p class="score" id="score">--/100</p>
+        <p id="feedback">
+          Your score and feedback will appear here after you check your answer.
+        </p>
+        <p id="wordCount">Word count: 0</p>
+      </div>
+
+      <h3>Tips to Improve</h3>
+      <ul id="tips">
+        <li>Introduce yourself clearly.</li>
+        <li>Mention your education and skills.</li>
+        <li>Explain your career goal.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Last Saved Answer</h2>
+      <p id="savedAnswer">No answer saved yet.</p>
+      <p id="savedScore"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep practising. Every attempt helps you improve!</p>
+  </footer>
+
+  <script>
+    let recognition = null;
+
+    const answerBox = document.getElementById("answer");
+    const statusBox = document.getElementById("status");
+
+    // Read the question aloud
+    function listenQuestion() {
+      if (!("speechSynthesis" in window)) {
+        statusBox.textContent =
+          "Speech playback is not supported in this browser.";
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance(
+        document.getElementById("question").textContent
+      );
+
+      speech.lang = "en-IN";
+      speech.rate = 0.9;
+
+      window.speechSynthesis.speak(speech);
+    }
+
+    // Start voice recognition
+    function startSpeaking() {
+      const SpeechRecognitionAPI =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+      if (!SpeechRecognitionAPI) {
+        statusBox.textContent =
+          "Voice recognition is not supported here. Try an updated Chrome browser, or type your answer.";
+        return;
+      }
+
+      if (recognition) {
+        recognition.stop();
+      }
+
+      recognition = new SpeechRecognitionAPI();
+      recognition.lang = "en-IN";
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = function () {
+        statusBox.textContent =
+          "Listening... Please speak clearly.";
+      };
+
+      recognition.onresult = function (event) {
+        let transcript = "";
+
+        for (
+          let i = 0;
+          i < event.results.length;
+          i++
+        ) {
+          transcript += event.results[i][0].transcript + " ";
+        }
+
+        answerBox.value = transcript.trim();
+      };
+
+      recognition.onerror = function (event) {
+        statusBox.textContent =
+          "Voice error: " + event.error +
+          ". You can type your answer instead.";
+      };
+
+      recognition.onend = function () {
+        statusBox.textContent = "Voice input stopped.";
+      };
+
+      recognition.start();
+    }
+
+    // Stop voice recognition
+    function stopSpeaking() {
+      if (recognition) {
+        recognition.stop();
+      }
+
+      statusBox.textContent = "Voice input stopped.";
+    }
+
+    // Simple rule-based score; this is not an AI evaluation
+    function evaluateAnswer(text) {
+      const words = text.trim().split(/\s+/).filter(Boolean);
+      const count = words.length;
+      const lower = text.toLowerCase();
+
+      let score = 0;
+      const tips = [];
+
+      // Answer length: maximum 30 points
+      if (count >= 50) {
+        score += 30;
+      } else if (count >= 30) {
+        score += 25;
+      } else if (count >= 15) {
+        score += 18;
+      } else if (count >= 5) {
+        score += 10;
+      } else {
+        score += 3;
+        tips.push("Try to give a longer introduction.");
+      }
+
+      // Education information: maximum 25 points
+      if (
+        lower.includes("student") ||
+        lower.includes("bca") ||
+        lower.includes("college") ||
+        lower.includes("education")
+      ) {
+        score += 25;
+      } else {
+        tips.push("Mention your education or current studies.");
+      }
+
+      // Skills: maximum 25 points
+      if (
+        lower.includes("skill") ||
+        lower.includes("html") ||
+        lower.includes("css") ||
+        lower.includes("python") ||
+        lower.includes("java") ||
+        lower.includes("sql") ||
+        lower.includes("programming")
+      ) {
+        score += 25;
+      } else {
+        tips.push("Mention one or two skills you are learning.");
+      }
+
+      // Career goal: maximum 20 points
+      if (
+        lower.includes("job") ||
+        lower.includes("career") ||
+        lower.includes("goal") ||
+        lower.includes("developer") ||
+        lower.includes("company")
+      ) {
+        score += 20;
+      } else {
+        tips.push("Explain your career goal.");
+      }
+
+      if (count > 0 && tips.length === 0) {
+        tips.push(
+          "Good start! Practise speaking naturally and avoid memorising every word."
+        );
+      }
+
+      return {
+        score: score,
+        count: count,
+        tips: tips
+      };
+    }
+
+    // Check answer and save locally
+    function saveAnswer() {
+      const text = answerBox.value.trim();
+
+      if (!text) {
+        statusBox.textContent =
+          "Please type or speak your answer first.";
+        answerBox.focus();
+        return;
+      }
+
+      const result = evaluateAnswer(text);
+
+      document.getElementById("score").textContent =
+        result.score + "/100";
+
+      document.getElementById("wordCount").textContent =
+        "Word count: " + result.count;
+
+      document.getElementById("feedback").textContent =
+        result.score >= 80
+          ? "Good structure! Keep practising to improve clarity and confidence."
+          : result.score >= 50
+          ? "Good attempt. Use the tips below to make your introduction more complete."
+          : "Keep practising. Add more details about your education, skills and career goal.";
+
+      const tipsList = document.getElementById("tips");
+      tipsList.replaceChildren();
+
+      result.tips.forEach(function (tip) {
+        const item = document.createElement("li");
+        item.textContent = tip;
+        tipsList.appendChild(item);
+      });
+
+      const record = {
+        answer: text,
+        score: result.score,
+        date: new Date().toLocaleString()
+      };
+
+      try {
+        localStorage.setItem(
+          "speak2career_self_intro",
+          JSON.stringify(record)
+        );
+
+        showSavedAnswer(record);
+        statusBox.textContent =
+          "Answer checked and saved on this browser.";
+      } catch (error) {
+        statusBox.textContent =
+          "Your score was calculated, but the browser could not save it.";
+      }
+    }
+
+    // Display saved answer
+    function showSavedAnswer(record) {
+      document.getElementById("savedAnswer").textContent =
+        record.answer;
+
+      document.getElementById("savedScore").textContent =
+        "Last score: " + record.score + "/100 | " + record.date;
+    }
+
+    // Load previous answer if available
+    function loadSavedAnswer() {
+      try {
+        const saved = localStorage.getItem(
+          "speak2career_self_intro"
+        );
+
+        if (saved) {
+          showSavedAnswer(JSON.parse(saved));
+        }
+      } catch (error) {
+        document.getElementById("savedAnswer").textContent =
+          "Could not load the previous answer.";
+      }
+    }
+
+    function clearAnswer() {
+      answerBox.value = "";
+      statusBox.textContent = "Answer cleared.";
+      answerBox.focus();
+    }
+
+    function goDashboard() {
+      window.location.href = "dashboard.html";
+    }
+
+    loadSavedAnswer();
+  </script>
+</body>
+</html>

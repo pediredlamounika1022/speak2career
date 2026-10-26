@@ -1,0 +1,675 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speak2Career | JAM Practice</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1e293b;
+    }
+
+    header {
+      background: #172554;
+      color: white;
+      padding: 22px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+    }
+
+    main {
+      width: 90%;
+      max-width: 800px;
+      margin: 28px auto;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+    }
+
+    h2, h3 {
+      color: #172554;
+    }
+
+    select, textarea {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin: 6px 4px 6px 0;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      background: #475569;
+    }
+
+    .danger {
+      background: #b91c1c;
+    }
+
+    .topic-box {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 16px;
+      border-radius: 8px;
+      line-height: 1.6;
+    }
+
+    .timer {
+      font-size: 42px;
+      font-weight: bold;
+      text-align: center;
+      color: #1d4ed8;
+      margin: 15px 0;
+    }
+
+    .timer.warning {
+      color: #b91c1c;
+    }
+
+    .feedback-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 16px;
+      border-radius: 10px;
+      margin-top: 16px;
+    }
+
+    .score {
+      font-size: 30px;
+      font-weight: bold;
+      color: #1d4ed8;
+    }
+
+    #status {
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Speak2Career</h1>
+  <p>Just a Minute (JAM) Practice</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Choose Your JAM Topic</h2>
+    <p>Speak about the selected topic for 60 seconds.</p>
+
+    <label for="topicSelect"><strong>Select Topic</strong></label>
+
+    <select id="topicSelect" onchange="changeTopic()">
+      <option value="0">Artificial Intelligence</option>
+      <option value="1">My Career Goal</option>
+      <option value="2">Importance of English</option>
+      <option value="3">Social Media</option>
+      <option value="4">Work-Life Balance</option>
+      <option value="5">Online Education</option>
+      <option value="6">Women in Technology</option>
+      <option value="7">My Favourite Person</option>
+      <option value="8">Teamwork</option>
+      <option value="9">Technology in Daily Life</option>
+    </select>
+
+    <div class="topic-box">
+      <h3>Today's Topic</h3>
+      <p id="topicText">Artificial Intelligence</p>
+    </div>
+
+    <button type="button" onclick="listenTopic()">Listen to Topic</button>
+  </section>
+
+  <section class="card">
+    <h2>60-Second Speaking Timer</h2>
+
+    <div id="timer" class="timer" aria-live="off">01:00</div>
+
+    <p id="status" aria-live="polite">
+      Select a topic, then click Start Practice.
+    </p>
+
+    <button type="button" id="startButton" onclick="startPractice()">
+      Start Practice
+    </button>
+
+    <button type="button" id="stopButton"
+      class="danger" onclick="finishPractice()" disabled>
+      Finish Early
+    </button>
+
+    <button type="button" class="secondary"
+      onclick="resetPractice()">
+      Reset
+    </button>
+
+    <label for="answer"><strong>Your Speech / Transcript</strong></label>
+
+    <textarea id="answer"
+      placeholder="Speak using the microphone or type your speech here..."
+      disabled></textarea>
+
+    <div>
+      <button type="button" id="voiceButton"
+        class="secondary" onclick="startVoice()" disabled>
+        Start Voice Input
+      </button>
+
+      <button type="button" id="stopVoiceButton"
+        class="secondary" onclick="stopVoice()" disabled>
+        Stop Voice Input
+      </button>
+    </div>
+
+    <p>
+      Voice recognition depends on your browser and microphone permission.
+      You can also type your speech.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>JAM Score & Feedback</h2>
+
+    <div class="feedback-box" aria-live="polite">
+      <p class="score" id="score">--/100</p>
+      <p id="feedback">
+        Complete your practice to see your feedback.
+      </p>
+      <p id="wordCount">Word count: 0</p>
+    </div>
+
+    <h3>Tips to Improve</h3>
+    <ul id="tips">
+      <li>Start with a clear introduction.</li>
+      <li>Explain your ideas with examples.</li>
+      <li>End with a short conclusion.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Last Saved JAM Practice</h2>
+    <p><strong>Topic:</strong></p>
+    <p id="savedTopic">No practice saved yet.</p>
+    <p><strong>Score:</strong></p>
+    <p id="savedScore">--</p>
+    <p id="savedDate"></p>
+  </section>
+
+  <section class="card">
+    <button type="button" class="secondary" onclick="goDashboard()">
+      Back to Dashboard
+    </button>
+  </section>
+</main>
+
+<footer>
+  <p>Speak clearly, organise your thoughts, and keep practising!</p>
+</footer>
+
+<script>
+  const topics = [
+    "Artificial Intelligence",
+    "My Career Goal",
+    "Importance of English",
+    "Social Media",
+    "Work-Life Balance",
+    "Online Education",
+    "Women in Technology",
+    "My Favourite Person",
+    "Teamwork",
+    "Technology in Daily Life"
+  ];
+
+  let timeLeft = 60;
+  let timerInterval = null;
+  let practiceActive = false;
+  let recognition = null;
+  let voiceActive = false;
+  let practiceFinished = false;
+
+  const timerBox = document.getElementById("timer");
+  const answerBox = document.getElementById("answer");
+  const statusBox = document.getElementById("status");
+
+  function changeTopic() {
+    if (practiceActive) {
+      statusBox.textContent =
+        "Finish or reset your current practice before changing topics.";
+      return;
+    }
+
+    const index = Number(document.getElementById("topicSelect").value);
+
+    document.getElementById("topicText").textContent = topics[index];
+    resetPractice();
+  }
+
+  function listenTopic() {
+    if (!("speechSynthesis" in window)) {
+      statusBox.textContent =
+        "Speech playback is not supported in this browser.";
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(
+      document.getElementById("topicText").textContent
+    );
+
+    speech.lang = "en-IN";
+    speech.rate = 0.9;
+    window.speechSynthesis.speak(speech);
+  }
+
+  function startPractice() {
+    if (practiceActive) return;
+
+    if (practiceFinished) {
+      resetPractice();
+    }
+
+    practiceActive = true;
+    practiceFinished = false;
+    timeLeft = 60;
+
+    answerBox.value = "";
+    answerBox.disabled = false;
+
+    document.getElementById("startButton").disabled = true;
+    document.getElementById("stopButton").disabled = false;
+    document.getElementById("voiceButton").disabled = false;
+
+    document.getElementById("score").textContent = "--/100";
+    document.getElementById("feedback").textContent =
+      "Your feedback will appear when the practice ends.";
+    document.getElementById("wordCount").textContent = "Word count: 0";
+    document.getElementById("tips").replaceChildren();
+
+    updateTimer();
+    statusBox.textContent = "Your 60-second practice has started!";
+
+    timerInterval = setInterval(function() {
+      timeLeft--;
+      updateTimer();
+
+      if (timeLeft <= 0) {
+        finishPractice();
+      }
+    }, 1000);
+  }
+
+  function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+
+    timerBox.textContent =
+      String(minutes).padStart(2, "0") + ":" +
+      String(seconds).padStart(2, "0");
+
+    timerBox.classList.toggle("warning", timeLeft <= 10);
+  }
+
+  function startVoice() {
+    if (!practiceActive) {
+      statusBox.textContent = "Start your practice first.";
+      return;
+    }
+
+    const SpeechAPI =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechAPI) {
+      statusBox.textContent =
+        "Voice input is not supported. Please type your speech instead.";
+      return;
+    }
+
+    if (voiceActive) return;
+
+    recognition = new SpeechAPI();
+    recognition.lang = "en-IN";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = function() {
+      voiceActive = true;
+      document.getElementById("voiceButton").disabled = true;
+      document.getElementById("stopVoiceButton").disabled = false;
+      statusBox.textContent = "Listening... Speak clearly.";
+    };
+
+    recognition.onresult = function(event) {
+      let transcript = "";
+
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript + " ";
+      }
+
+      answerBox.value = transcript.trim();
+    };
+
+    recognition.onerror = function(event) {
+      statusBox.textContent =
+        "Voice input error: " + event.error +
+        ". You can type your speech instead.";
+    };
+
+    recognition.onend = function() {
+      voiceActive = false;
+      document.getElementById("voiceButton").disabled =
+        !practiceActive;
+      document.getElementById("stopVoiceButton").disabled = true;
+
+      if (practiceActive) {
+        statusBox.textContent = "Voice input stopped. You can continue practising.";
+      }
+    };
+
+    try {
+      recognition.start();
+    } catch (error) {
+      statusBox.textContent =
+        "Could not start voice input. Please try again or type your speech.";
+    }
+  }
+
+  function stopVoice() {
+    if (recognition && voiceActive) {
+      recognition.stop();
+    }
+  }
+
+  function finishPractice() {
+    if (!practiceActive) return;
+
+    practiceActive = false;
+    practiceFinished = true;
+
+    clearInterval(timerInterval);
+    timerInterval = null;
+
+    if (recognition && voiceActive) {
+      recognition.stop();
+    }
+
+    answerBox.disabled = false;
+
+    document.getElementById("startButton").disabled = false;
+    document.getElementById("stopButton").disabled = true;
+    document.getElementById("voiceButton").disabled = true;
+    document.getElementById("stopVoiceButton").disabled = true;
+
+    evaluateSpeech();
+
+    statusBox.textContent =
+      timeLeft <= 0
+        ? "Time is up! Your practice has ended."
+        : "Practice finished. Your feedback is ready.";
+  }
+
+  // Basic rule-based estimate, not AI evaluation
+  function evaluateSpeech() {
+    const text = answerBox.value.trim();
+
+    if (!text) {
+      document.getElementById("score").textContent = "0/100";
+      document.getElementById("feedback").textContent =
+        "No speech was recorded. Try again by speaking or typing your ideas.";
+      document.getElementById("wordCount").textContent = "Word count: 0";
+
+      showTips([
+        "Speak or type your main opinion.",
+        "Add at least one reason or example.",
+        "Finish with a short conclusion."
+      ]);
+
+      savePractice(0, 0);
+      return;
+    }
+
+    const words = text.split(/\s+/).filter(Boolean);
+    const count = words.length;
+    const lower = text.toLowerCase();
+
+    let score = 0;
+    const tips = [];
+
+    // Length score: up to 30
+    if (count >= 90) {
+      score += 30;
+    } else if (count >= 60) {
+      score += 25;
+    } else if (count >= 35) {
+      score += 20;
+    } else if (count >= 15) {
+      score += 12;
+    } else {
+      score += 5;
+      tips.push("Try to explain your topic in more detail.");
+    }
+
+    // Clear opinion: up to 25
+    const opinionPhrases = [
+      "i think", "i believe", "in my opinion",
+      "i feel", "my view", "i agree", "i disagree"
+    ];
+
+    const hasOpinion = opinionPhrases.some(
+      phrase => lower.includes(phrase)
+    );
+
+    if (hasOpinion) {
+      score += 25;
+    } else {
+      tips.push("Start by clearly stating your opinion.");
+    }
+
+    // Reasons/examples: up to 25
+    const supportPhrases = [
+      "because", "for example", "for instance",
+      "such as", "one reason", "therefore"
+    ];
+
+    const supportCount = supportPhrases.filter(
+      phrase => lower.includes(phrase)
+    ).length;
+
+    score += Math.min(25, supportCount * 13);
+
+    if (supportCount === 0) {
+      tips.push("Support your ideas with a reason or example.");
+    }
+
+    // Conclusion or balanced viewpoint: up to 20
+    const conclusionPhrases = [
+      "in conclusion", "to conclude", "overall",
+      "finally", "on the other hand", "however"
+    ];
+
+    const hasConclusion = conclusionPhrases.some(
+      phrase => lower.includes(phrase)
+    );
+
+    if (hasConclusion) {
+      score += 20;
+    } else {
+      tips.push("Finish with a short conclusion.");
+    }
+
+    score = Math.min(100, score);
+
+    if (tips.length === 0) {
+      tips.push(
+        "Good structure! Continue practising clarity, pace and relevant examples."
+      );
+    }
+
+    document.getElementById("score").textContent = score + "/100";
+
+    document.getElementById("feedback").textContent =
+      score >= 80
+        ? "Your transcript includes several useful speaking elements. Keep practising naturally."
+        : score >= 50
+        ? "Good effort! Use the tips below to organise your speech more clearly."
+        : "Keep practising. State your opinion, explain your reasons and add a conclusion.";
+
+    document.getElementById("wordCount").textContent =
+      "Word count: " + count;
+
+    showTips(tips);
+    savePractice(score, count);
+  }
+
+  function showTips(tips) {
+    const list = document.getElementById("tips");
+    list.replaceChildren();
+
+    tips.forEach(function(tip) {
+      const li = document.createElement("li");
+      li.textContent = tip;
+      list.appendChild(li);
+    });
+  }
+
+  function savePractice(score, wordCount) {
+    const record = {
+      topic: document.getElementById("topicText").textContent,
+      score: score,
+      wordCount: wordCount,
+      date: new Date().toLocaleString()
+    };
+
+    try {
+      localStorage.setItem("speak2career_jam", JSON.stringify(record));
+
+      document.getElementById("savedTopic").textContent = record.topic;
+      document.getElementById("savedScore").textContent =
+        record.score + "/100 | " + record.wordCount + " words";
+      document.getElementById("savedDate").textContent = record.date;
+    } catch (error) {
+      statusBox.textContent =
+        "Practice finished, but browser storage failed.";
+    }
+  }
+
+  function loadSavedPractice() {
+    try {
+      const saved = localStorage.getItem("speak2career_jam");
+
+      if (saved) {
+        const record = JSON.parse(saved);
+
+        document.getElementById("savedTopic").textContent = record.topic;
+        document.getElementById("savedScore").textContent =
+          record.score + "/100 | " + record.wordCount + " words";
+        document.getElementById("savedDate").textContent = record.date;
+      }
+    } catch (error) {
+      document.getElementById("savedTopic").textContent =
+        "Could not load the previous practice.";
+    }
+  }
+
+  function resetPractice() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+
+    if (recognition && voiceActive) {
+      recognition.stop();
+    }
+
+    practiceActive = false;
+    practiceFinished = false;
+    timeLeft = 60;
+    voiceActive = false;
+
+    updateTimer();
+
+    answerBox.value = "";
+    answerBox.disabled = true;
+
+    document.getElementById("startButton").disabled = false;
+    document.getElementById("stopButton").disabled = true;
+    document.getElementById("voiceButton").disabled = true;
+    document.getElementById("stopVoiceButton").disabled = true;
+
+    document.getElementById("score").textContent = "--/100";
+    document.getElementById("feedback").textContent =
+      "Complete your practice to see your feedback.";
+    document.getElementById("wordCount").textContent = "Word count: 0";
+
+    showTips([
+      "Start with a clear introduction.",
+      "Explain your ideas with examples.",
+      "End with a short conclusion."
+    ]);
+
+    statusBox.textContent =
+      "Ready. Click Start Practice when you are prepared.";
+  }
+
+  function goDashboard() {
+    window.location.href = "dashboard.html";
+  }
+
+  changeTopic();
+  loadSavedPractice();
+</script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speak2Career | Group Discussion</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1e293b;
+    }
+
+    header {
+      background: #172554;
+      color: white;
+      text-align: center;
+      padding: 22px;
+    }
+
+    header h1 { margin: 0 0 8px; }
+
+    main {
+      width: 90%;
+      max-width: 800px;
+      margin: 28px auto;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.07);
+    }
+
+    h2, h3 { color: #172554; }
+
+    select, textarea {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px 15px;
+      margin: 6px 4px 6px 0;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover { opacity: .9; }
+
+    .secondary { background: #475569; }
+
+    .topic-box {
+      background: #eff6ff;
+      padding: 16px;
+      border-left: 4px solid #2563eb;
+      border-radius: 8px;
+      line-height: 1.6;
+    }
+
+    .feedback {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .score {
+      color: #1d4ed8;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    #status { color: #475569; }
+
+    li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      color: #64748b;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Speak2Career</h1>
+  <p>Group Discussion Practice</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practise Your GD Skills</h2>
+
+    <label for="topicSelect"><strong>Choose a Topic</strong></label>
+    <select id="topicSelect" onchange="changeTopic()">
+      <option value="0">Is Artificial Intelligence helpful?</option>
+      <option value="1">Work-Life Balance</option>
+      <option value="2">Online Education vs Offline Education</option>
+      <option value="3">Social Media: Advantages and Disadvantages</option>
+      <option value="4">Importance of Communication Skills</option>
+      <option value="5">Women in Technology</option>
+      <option value="6">Should College Students Do Internships?</option>
+      <option value="7">Is Teamwork Important in the Workplace?</option>
+    </select>
+
+    <div class="topic-box">
+      <h3>Discussion Topic</h3>
+      <p id="topicText">Is Artificial Intelligence helpful?</p>
+    </div>
+
+    <button type="button" onclick="listenTopic()">Listen to Topic</button>
+
+    <label for="answer"><strong>Your Discussion</strong></label>
+    <textarea id="answer"
+      placeholder="Share your opinion, reasons, examples and conclusion..."></textarea>
+
+    <p id="status">Ready to practise.</p>
+
+    <button type="button" onclick="startSpeaking()">Start Speaking</button>
+    <button type="button" class="secondary" onclick="stopSpeaking()">Stop Speaking</button>
+    <button type="button" onclick="checkDiscussion()">Check & Save</button>
+    <button type="button" class="secondary" onclick="clearAnswer()">Clear Answer</button>
+    <button type="button" class="secondary" onclick="goDashboard()">Back to Dashboard</button>
+  </section>
+
+  <section class="card">
+    <h2>Your GD Feedback</h2>
+
+    <div class="feedback" aria-live="polite">
+      <p class="score" id="score">--/100</p>
+      <p id="feedback">Your practice feedback will appear here.</p>
+      <p id="wordCount">Word count: 0</p>
+    </div>
+
+    <h3>Improvement Tips</h3>
+    <ul id="tips">
+      <li>State your opinion clearly.</li>
+      <li>Support it with reasons or examples.</li>
+      <li>End with a short conclusion.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Last Saved Discussion</h2>
+    <p><strong>Topic:</strong></p>
+    <p id="savedTopic">No discussion saved yet.</p>
+    <p><strong>Your answer:</strong></p>
+    <p id="savedAnswer">No discussion saved yet.</p>
+    <p id="savedScore"></p>
+  </section>
+</main>
+
+<footer>
+  <p>Practise expressing your ideas clearly and respectfully.</p>
+</footer>
+
+<script>
+  const topics = [
+    "Is Artificial Intelligence helpful?",
+    "Work-Life Balance",
+    "Online Education vs Offline Education",
+    "Social Media: Advantages and Disadvantages",
+    "Importance of Communication Skills",
+    "Women in Technology",
+    "Should College Students Do Internships?",
+    "Is Teamwork Important in the Workplace?"
+  ];
+
+  let recognition = null;
+
+  function changeTopic() {
+    const index = Number(document.getElementById("topicSelect").value);
+    document.getElementById("topicText").textContent = topics[index];
+    document.getElementById("answer").value = "";
+    document.getElementById("score").textContent = "--/100";
+    document.getElementById("feedback").textContent =
+      "Share your opinion on the selected topic.";
+    document.getElementById("wordCount").textContent = "Word count: 0";
+    document.getElementById("tips").replaceChildren();
+    document.getElementById("status").textContent = "New topic selected.";
+  }
+
+  function listenTopic() {
+    if (!("speechSynthesis" in window)) {
+      document.getElementById("status").textContent =
+        "Speech playback is not supported in this browser.";
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(
+      document.getElementById("topicText").textContent
+    );
+    speech.lang = "en-IN";
+    speech.rate = 0.9;
+    window.speechSynthesis.speak(speech);
+  }
+
+  function startSpeaking() {
+    const SpeechAPI = window.SpeechRecognition ||
+                      window.webkitSpeechRecognition;
+
+    if (!SpeechAPI) {
+      document.getElementById("status").textContent =
+        "Voice recognition is not supported. Please type your answer or use updated Chrome.";
+      return;
+    }
+
+    if (recognition) recognition.stop();
+
+    recognition = new SpeechAPI();
+    recognition.lang = "en-IN";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = function() {
+      document.getElementById("status").textContent =
+        "Listening... Speak clearly.";
+    };
+
+    recognition.onresult = function(event) {
+      let transcript = "";
+
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript + " ";
+      }
+
+      document.getElementById("answer").value = transcript.trim();
+    };
+
+    recognition.onerror = function(event) {
+      document.getElementById("status").textContent =
+        "Voice input error: " + event.error + ". You can type instead.";
+    };
+
+    recognition.onend = function() {
+      document.getElementById("status").textContent = "Voice input stopped.";
+    };
+
+    recognition.start();
+  }
+
+  function stopSpeaking() {
+    if (recognition) recognition.stop();
+    document.getElementById("status").textContent = "Voice input stopped.";
+  }
+
+  // Rule-based practice estimate, not an AI assessment
+  function evaluateDiscussion(text) {
+    const words = text.trim().split(/\s+/).filter(Boolean);
+    const count = words.length;
+    const lower = text.toLowerCase();
+    let score = 0;
+    const tips = [];
+
+    // Length: up to 25 points
+    if (count >= 80) score += 25;
+    else if (count >= 50) score += 22;
+    else if (count >= 30) score += 17;
+    else if (count >= 15) score += 12;
+    else {
+      score += 5;
+      tips.push("Develop your ideas further; explain your opinion in more detail.");
+    }
+
+    // Opinion language: up to 25 points
+    const opinionWords = [
+      "i think", "i believe", "in my opinion",
+      "i feel", "according to me", "my view"
+    ];
+
+    const hasOpinion = opinionWords.some(word => lower.includes(word));
+    if (hasOpinion) score += 25;
+    else tips.push("Start by clearly stating your opinion.");
+
+    // Supporting reasons/examples: up to 25 points
+    const reasonWords = [
+      "because", "for example", "for instance",
+      "reason", "therefore", "such as"
+    ];
+
+    const reasonMatches = reasonWords.filter(word => lower.includes(word)).length;
+    score += Math.min(25, reasonMatches * 9);
+
+    if (reasonMatches === 0) {
+      tips.push("Support your opinion with reasons or a relevant example.");
+    }
+
+    // Conclusion or balanced view: up to 25 points
+    const conclusionWords = [
+      "in conclusion", "to conclude", "finally",
+      "overall", "on the other hand", "however"
+    ];
+
+    const conclusionMatches =
+      conclusionWords.filter(word => lower.includes(word)).length;
+
+    score += Math.min(25, conclusionMatches * 13);
+
+    if (conclusionMatches === 0) {
+      tips.push("Add a short conclusion or acknowledge another viewpoint.");
+    }
+
+    score = Math.min(100, score);
+
+    if (tips.length === 0) {
+      tips.push("Good practice structure. Keep your points clear and respectful.");
+    }
+
+    return { score, count, tips };
+  }
+
+  function checkDiscussion() {
+    const text = document.getElementById("answer").value.trim();
+
+    if (!text) {
+      document.getElementById("status").textContent =
+        "Please type or speak your discussion first.";
+      return;
+    }
+
+    const topicIndex = Number(document.getElementById("topicSelect").value);
+    const topic = topics[topicIndex];
+    const result = evaluateDiscussion(text);
+
+    document.getElementById("score").textContent = result.score + "/100";
+    document.getElementById("wordCount").textContent =
+      "Word count: " + result.count;
+
+    document.getElementById("feedback").textContent =
+      result.score >= 80
+        ? "Your response includes several useful discussion elements. Continue practising clarity and examples."
+        : result.score >= 50
+        ? "Good effort. Use the tips below to develop a more structured discussion."
+        : "Keep practising. State your opinion, explain your reasons and add a conclusion.";
+
+    const tipsList = document.getElementById("tips");
+    tipsList.replaceChildren();
+
+    result.tips.forEach(function(tip) {
+      const li = document.createElement("li");
+      li.textContent = tip;
+      tipsList.appendChild(li);
+    });
+
+    const record = {
+      topic: topic,
+      answer: text,
+      score: result.score,
+      date: new Date().toLocaleString()
+    };
+
+    try {
+      localStorage.setItem(
+        "speak2career_group_discussion",
+        JSON.stringify(record)
+      );
+      showSaved(record);
+      document.getElementById("status").textContent =
+        "Discussion checked and saved in this browser.";
+    } catch (error) {
+      document.getElementById("status").textContent =
+        "Score calculated, but browser storage failed.";
+    }
+  }
+
+  function showSaved(record) {
+    document.getElementById("savedTopic").textContent = record.topic;
+    document.getElementById("savedAnswer").textContent = record.answer;
+    document.getElementById("savedScore").textContent =
+      "Last score: " + record.score + "/100 | " + record.date;
+  }
+
+  function loadSaved() {
+    try {
+      const saved = localStorage.getItem("speak2career_group_discussion");
+      if (saved) showSaved(JSON.parse(saved));
+    } catch (error) {
+      document.getElementById("savedAnswer").textContent =
+        "Could not load the previous discussion.";
+    }
+  }
+
+  function clearAnswer() {
+    document.getElementById("answer").value = "";
+    document.getElementById("status").textContent = "Answer cleared.";
+  }
+
+  function goDashboard() {
+    window.location.href = "dashboard.html";
+  }
+
+  loadSaved();
+</script>
+</body>
+</html>

@@ -1,0 +1,673 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speak2Career | Daily English</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1e293b;
+    }
+
+    header {
+      background: #172554;
+      color: white;
+      text-align: center;
+      padding: 22px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+    }
+
+    main {
+      width: 90%;
+      max-width: 800px;
+      margin: 28px auto;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.07);
+    }
+
+    h2, h3 {
+      color: #172554;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 16px;
+      background: white;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin: 6px 4px 6px 0;
+      background: #2563eb;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: .9;
+    }
+
+    .secondary {
+      background: #475569;
+    }
+
+    .lesson {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 15px;
+      border-radius: 8px;
+      line-height: 1.7;
+    }
+
+    .question-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+
+    .option {
+      display: block;
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    .option:hover {
+      background: #eff6ff;
+    }
+
+    .option input {
+      margin-right: 8px;
+    }
+
+    .feedback {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .score {
+      font-size: 30px;
+      font-weight: bold;
+      color: #1d4ed8;
+    }
+
+    .progress-track {
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: #2563eb;
+      transition: width .3s;
+    }
+
+    #status {
+      color: #475569;
+    }
+
+    li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      color: #64748b;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Speak2Career</h1>
+  <p>Daily English Learning</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Daily English Lessons</h2>
+    <p>Learn useful English sentences and practise grammar.</p>
+
+    <label for="lessonSelect"><strong>Choose a lesson</strong></label>
+    <select id="lessonSelect" onchange="changeLesson()">
+      <option value="0">Day 1 — Self Introduction</option>
+      <option value="1">Day 2 — Daily Routine</option>
+      <option value="2">Day 3 — Present Tense</option>
+      <option value="3">Day 4 — Questions and Answers</option>
+      <option value="4">Day 5 — Job Interview English</option>
+    </select>
+
+    <div class="lesson">
+      <h3 id="lessonTitle">Day 1 — Self Introduction</h3>
+      <p id="lessonExplanation">
+        Use simple sentences to introduce yourself.
+      </p>
+      <ul id="sentenceList"></ul>
+    </div>
+
+    <button type="button" onclick="listenLesson()">Listen to Sentences</button>
+  </section>
+
+  <section class="card">
+    <h2>English Quiz</h2>
+    <p>Choose the best answer for each question.</p>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <p id="questionNumber">Question 1 of 10</p>
+
+    <div class="question-box">
+      <h3 id="quizQuestion"></h3>
+      <div id="options"></div>
+    </div>
+
+    <p id="status">Select your answer.</p>
+
+    <button type="button" id="submitButton" onclick="submitAnswer()">
+      Check Answer
+    </button>
+
+    <button type="button" class="secondary" id="nextButton"
+      onclick="nextQuestion()" hidden>
+      Next Question
+    </button>
+
+    <div class="feedback" id="questionFeedback" aria-live="polite" hidden>
+      <strong id="resultLabel"></strong>
+      <p id="explanation"></p>
+    </div>
+  </section>
+
+  <section class="card" id="resultCard" hidden>
+    <h2>Quiz Result</h2>
+    <p class="score" id="finalScore"></p>
+    <p id="finalMessage"></p>
+    <p id="correctCount"></p>
+
+    <h3>What to practise next</h3>
+    <ul id="improvementTips"></ul>
+
+    <button type="button" onclick="restartQuiz()">Try Again</button>
+  </section>
+
+  <section class="card">
+    <h2>Your Progress</h2>
+    <p id="progressSummary">No quiz attempts yet.</p>
+    <p id="bestScore">Best score: --</p>
+    <p id="lastLesson">Last lesson: --</p>
+    <button type="button" class="secondary" onclick="resetProgress()">
+      Reset Saved Progress
+    </button>
+  </section>
+
+  <section class="card">
+    <button type="button" class="secondary" onclick="goDashboard()">
+      Back to Dashboard
+    </button>
+  </section>
+</main>
+
+<footer>
+  <p>Practise a little every day. Small steps build confidence!</p>
+</footer>
+
+<script>
+  const lessons = [
+    {
+      title: "Day 1 — Self Introduction",
+      explanation: "Use simple sentences to introduce yourself.",
+      sentences: [
+        "My name is Mounika.",
+        "I am a BCA student.",
+        "I am learning English.",
+        "I want to get a job in IT."
+      ]
+    },
+    {
+      title: "Day 2 — Daily Routine",
+      explanation: "Use the simple present tense to talk about daily habits.",
+      sentences: [
+        "I wake up early every day.",
+        "I go to college every day.",
+        "I practise English in the evening.",
+        "I sleep at ten o'clock."
+      ]
+    },
+    {
+      title: "Day 3 — Present Tense",
+      explanation: "Use am, is, and are with the correct subject.",
+      sentences: [
+        "I am learning English.",
+        "She is a student.",
+        "They are my friends.",
+        "I study every day."
+      ]
+    },
+    {
+      title: "Day 4 — Questions and Answers",
+      explanation: "Practise answering simple questions in complete sentences.",
+      sentences: [
+        "Are you a student? Yes, I am.",
+        "What are you learning? I am learning English.",
+        "Where do you study? I study at college.",
+        "What is your goal? I want to get an IT job."
+      ]
+    },
+    {
+      title: "Day 5 — Job Interview English",
+      explanation: "Use clear and professional sentences in interviews.",
+      sentences: [
+        "I am a final-year BCA student.",
+        "I am interested in software development.",
+        "I am willing to learn new skills.",
+        "I want to contribute to a team."
+      ]
+    }
+  ];
+
+  const quiz = [
+    {
+      question: "Choose the correct sentence.",
+      options: [
+        "I am learning English.",
+        "I learning English.",
+        "I is learning English.",
+        "I are learning English."
+      ],
+      answer: 0,
+      explanation: "Use 'am' with 'I' in the present continuous tense."
+    },
+    {
+      question: "Complete: She ___ a student.",
+      options: ["am", "is", "are", "be"],
+      answer: 1,
+      explanation: "Use 'is' with he, she, and it."
+    },
+    {
+      question: "Choose the correct daily routine sentence.",
+      options: [
+        "I goes to college.",
+        "I going to college every day.",
+        "I go to college every day.",
+        "I gone to college every day."
+      ],
+      answer: 2,
+      explanation: "Use the base verb 'go' with 'I' in the simple present tense."
+    },
+    {
+      question: "Complete: They ___ my friends.",
+      options: ["is", "am", "be", "are"],
+      answer: 3,
+      explanation: "Use 'are' with 'they'."
+    },
+    {
+      question: "Choose the correct question.",
+      options: [
+        "Are you a student?",
+        "You are student?",
+        "Is you a student?",
+        "Am you a student?"
+      ],
+      answer: 0,
+      explanation: "For a yes/no question with 'you', use 'Are you...?'"
+    },
+    {
+      question: "Complete: I ___ up early every day.",
+      options: ["wakes", "waking", "wake", "woke"],
+      answer: 2,
+      explanation: "Use 'wake' with 'I' for a daily habit."
+    },
+    {
+      question: "Choose the best interview sentence.",
+      options: [
+        "I wants a job.",
+        "I want to learn new skills.",
+        "I wanting job.",
+        "I am want a job."
+      ],
+      answer: 1,
+      explanation: "'I want to learn new skills' is grammatically correct and professional."
+    },
+    {
+      question: "Complete: What ___ you learning?",
+      options: ["is", "am", "be", "are"],
+      answer: 3,
+      explanation: "Use 'are' with 'you': What are you learning?"
+    },
+    {
+      question: "Choose the correct sentence.",
+      options: [
+        "He work in a company.",
+        "He works in a company.",
+        "He working in a company every day.",
+        "He are working in a company."
+      ],
+      answer: 1,
+      explanation: "In the simple present tense, add -s or -es with he, she, or it."
+    },
+    {
+      question: "Complete: I want ___ an IT job.",
+      options: ["get", "getting", "to get", "got"],
+      answer: 2,
+      explanation: "Use 'want to' followed by the base verb: want to get."
+    }
+  ];
+
+  let currentQuestion = 0;
+  let score = 0;
+  let answered = false;
+  let correctAnswers = 0;
+  let wrongTopics = [];
+
+  function changeLesson() {
+    const index = Number(document.getElementById("lessonSelect").value);
+    const lesson = lessons[index];
+
+    document.getElementById("lessonTitle").textContent = lesson.title;
+    document.getElementById("lessonExplanation").textContent =
+      lesson.explanation;
+
+    const list = document.getElementById("sentenceList");
+    list.replaceChildren();
+
+    lesson.sentences.forEach(function(sentence) {
+      const li = document.createElement("li");
+      li.textContent = sentence;
+      list.appendChild(li);
+    });
+
+    saveLastLesson(lesson.title);
+  }
+
+  function listenLesson() {
+    if (!("speechSynthesis" in window)) {
+      document.getElementById("status").textContent =
+        "Speech playback is not supported in this browser.";
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const sentences = lessons[
+      Number(document.getElementById("lessonSelect").value)
+    ].sentences;
+
+    const speech = new SpeechSynthesisUtterance(sentences.join(". "));
+    speech.lang = "en-IN";
+    speech.rate = 0.85;
+
+    window.speechSynthesis.speak(speech);
+  }
+
+  function showQuestion() {
+    answered = false;
+
+    const item = quiz[currentQuestion];
+
+    document.getElementById("questionNumber").textContent =
+      "Question " + (currentQuestion + 1) + " of " + quiz.length;
+
+    document.getElementById("quizQuestion").textContent = item.question;
+
+    document.getElementById("progressFill").style.width =
+      (currentQuestion / quiz.length * 100) + "%";
+
+    const optionsBox = document.getElementById("options");
+    optionsBox.replaceChildren();
+
+    item.options.forEach(function(option, index) {
+      const label = document.createElement("label");
+      label.className = "option";
+
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "quizOption";
+      radio.value = index;
+
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(option));
+      optionsBox.appendChild(label);
+    });
+
+    document.getElementById("status").textContent =
+      "Select your answer.";
+
+    document.getElementById("submitButton").hidden = false;
+    document.getElementById("nextButton").hidden = true;
+    document.getElementById("questionFeedback").hidden = true;
+  }
+
+  function submitAnswer() {
+    if (answered) return;
+
+    const selected = document.querySelector(
+      'input[name="quizOption"]:checked'
+    );
+
+    if (!selected) {
+      document.getElementById("status").textContent =
+        "Please select an answer first.";
+      return;
+    }
+
+    answered = true;
+
+    const item = quiz[currentQuestion];
+    const selectedAnswer = Number(selected.value);
+    const isCorrect = selectedAnswer === item.answer;
+
+    if (isCorrect) {
+      score += 10;
+      correctAnswers++;
+    } else {
+      wrongTopics.push(item.question);
+    }
+
+    document.getElementById("resultLabel").textContent =
+      isCorrect ? "Correct answer!" : "Not quite. Review the explanation.";
+
+    document.getElementById("explanation").textContent =
+      item.explanation + " Correct answer: " + item.options[item.answer] + ".";
+
+    document.getElementById("questionFeedback").hidden = false;
+    document.getElementById("status").textContent =
+      isCorrect ? "You earned 10 points." : "Keep practising.";
+
+    document.getElementById("submitButton").hidden = true;
+    document.getElementById("nextButton").hidden = false;
+
+    const nextButton = document.getElementById("nextButton");
+    nextButton.textContent =
+      currentQuestion === quiz.length - 1 ? "View Result" : "Next Question";
+  }
+
+  function nextQuestion() {
+    if (!answered) return;
+
+    if (currentQuestion < quiz.length - 1) {
+      currentQuestion++;
+      showQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function showResult() {
+    document.getElementById("progressFill").style.width = "100%";
+    document.getElementById("resultCard").hidden = false;
+
+    document.getElementById("finalScore").textContent =
+      score + "/" + (quiz.length * 10);
+
+    document.getElementById("finalMessage").textContent =
+      score >= 80
+        ? "Excellent work! Keep practising to maintain your progress."
+        : score >= 50
+        ? "Good effort. Review the explanations and try again."
+        : "Keep going. Review the lessons and practise the quiz again.";
+
+    document.getElementById("correctCount").textContent =
+      "Correct answers: " + correctAnswers + " out of " + quiz.length;
+
+    const tips = document.getElementById("improvementTips");
+    tips.replaceChildren();
+
+    if (wrongTopics.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = "You answered all questions correctly. Try speaking the example sentences aloud.";
+      tips.appendChild(li);
+    } else {
+      wrongTopics.forEach(function(topic) {
+        const li = document.createElement("li");
+        li.textContent = "Review: " + topic;
+        tips.appendChild(li);
+      });
+    }
+
+    saveQuizResult(score, correctAnswers);
+    document.getElementById("nextButton").hidden = true;
+    document.getElementById("submitButton").hidden = true;
+
+    document.getElementById("resultCard").scrollIntoView({
+      behavior: "smooth"
+    });
+  }
+
+  function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    correctAnswers = 0;
+    wrongTopics = [];
+
+    document.getElementById("resultCard").hidden = true;
+    showQuestion();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function saveQuizResult(newScore, newCorrect) {
+    try {
+      const key = "speak2career_daily_english";
+      const saved = JSON.parse(localStorage.getItem(key) || "{}");
+
+      const attempts = (saved.attempts || 0) + 1;
+      const bestScore = Math.max(saved.bestScore || 0, newScore);
+
+      localStorage.setItem(key, JSON.stringify({
+        attempts: attempts,
+        bestScore: bestScore,
+        lastScore: newScore,
+        correctAnswers: newCorrect,
+        lastDate: new Date().toLocaleString()
+      }));
+
+      loadProgress();
+    } catch (error) {
+      document.getElementById("progressSummary").textContent =
+        "Quiz finished, but the browser could not save progress.";
+    }
+  }
+
+  function saveLastLesson(title) {
+    try {
+      localStorage.setItem("speak2career_last_lesson", title);
+      document.getElementById("lastLesson").textContent =
+        "Last lesson: " + title;
+    } catch (error) {
+      // Lesson remains available for this session.
+    }
+  }
+
+  function loadProgress() {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem("speak2career_daily_english") || "null"
+      );
+
+      if (saved) {
+        document.getElementById("progressSummary").textContent =
+          "Quiz attempts: " + saved.attempts +
+          " | Last score: " + saved.lastScore + "/" + (quiz.length * 10);
+
+        document.getElementById("bestScore").textContent =
+          "Best score: " + saved.bestScore + "/" + (quiz.length * 10);
+      }
+
+      const lastLesson = localStorage.getItem("speak2career_last_lesson");
+      if (lastLesson) {
+        document.getElementById("lastLesson").textContent =
+          "Last lesson: " + lastLesson;
+      }
+    } catch (error) {
+      document.getElementById("progressSummary").textContent =
+        "Could not load saved progress.";
+    }
+  }
+
+  function resetProgress() {
+    const confirmed = confirm(
+      "Reset your saved Daily English quiz progress?"
+    );
+
+    if (!confirmed) return;
+
+    localStorage.removeItem("speak2career_daily_english");
+    localStorage.removeItem("speak2career_last_lesson");
+
+    document.getElementById("progressSummary").textContent =
+      "No quiz attempts yet.";
+    document.getElementById("bestScore").textContent = "Best score: --";
+    document.getElementById("lastLesson").textContent = "Last lesson: --";
+    document.getElementById("status").textContent =
+      "Saved progress has been reset.";
+  }
+
+  function goDashboard() {
+    window.location.href = "dashboard.html";
+  }
+
+  changeLesson();
+  showQuestion();
+  loadProgress();
+</script>
+</body>
+</html>

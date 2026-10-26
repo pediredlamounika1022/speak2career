@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speak2Career | Login</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f5fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 5px 25px #0001;
+    }
+    h1 { text-align: center; color: #2457a7; }
+    p { text-align: center; color: #555; }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+    input { border: 1px solid #ccd3df; }
+    button {
+      border: 0;
+      background: #2457a7;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    #message { font-size: 14px; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Speak2Career</h1>
+    <p>Login or create your account</p>
+
+    <form id="authForm">
+      <input id="email" type="email" placeholder="Email address"
+        autocomplete="email" required>
+
+      <input id="password" type="password"
+        placeholder="Password (minimum 6 characters)"
+        minlength="6" autocomplete="current-password" required>
+
+      <button type="submit" id="loginBtn">Login</button>
+      <button type="button" id="signupBtn">Create Account</button>
+    </form>
+    <p id="message" role="status" aria-live="polite"></p>
+  </div>
+
+  <script type="module">
+    import { createClient } from
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const SUPABASE_URL =
+      "https://khfbdystxlvvbvjoprne.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_KjftYGKgjQ5w5YiIRYRUzQ_coQgZhDW";
+
+    const supabase = createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    const form = document.getElementById("authForm");
+    const message = document.getElementById("message");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
+
+    let busy = false;
+
+    function setBusy(value) {
+      busy = value;
+      loginBtn.disabled = value;
+      signupBtn.disabled = value;
+    }
+
+    async function goDashboard() {
+      message.textContent = "Login successful! Opening Dashboard...";
+      window.location.replace("dashboard.html");
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (busy || !form.reportValidity()) return;
+
+      setBusy(true);
+      message.textContent = "Logging in...";
+
+      try {
+        const { data, error } =
+          await supabase.auth.signInWithPassword({
+            email: email.value.trim(),
+            password: password.value
+          });
+
+        if (error) {
+          message.textContent = error.message;
+          return;
+        }
+
+        if (data.session) {
+          await goDashboard();
+        } else {
+          message.textContent =
+            "Login session not found. Please try again.";
+        }
+      } catch (error) {
+        message.textContent =
+          "Connection error. Check your internet and Supabase settings.";
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    signupBtn.addEventListener("click", async () => {
+      if (busy || !form.reportValidity()) return;
+
+      setBusy(true);
+      message.textContent = "Creating account...";
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.value.trim(),
+          password: password.value
+        });
+
+        if (error) {
+          message.textContent = error.message;
+        } else if (data.session) {
+          await goDashboard();
+        } else {
+          message.textContent =
+            "Account created. Check your email to confirm it, then log in.";
+        }
+      } catch (error) {
+        message.textContent =
+          "Connection error. Check your internet and Supabase settings.";
+      } finally {
+        setBusy(false);
+      }
+    });
+  </script>
+</body>
+</html>

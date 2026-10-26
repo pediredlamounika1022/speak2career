@@ -1,0 +1,357 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speak2Career | Dashboard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #26344d;
+    }
+
+    header {
+      background: #243b64;
+      color: white;
+      padding: 22px 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 7px;
+    }
+
+    header p {
+      color: #e0e8f5;
+    }
+
+    .logout {
+      background: white;
+      color: #243b64;
+      border: none;
+      padding: 11px 22px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    main {
+      max-width: 1150px;
+      margin: 35px auto;
+      padding: 0 20px;
+    }
+
+    .welcome {
+      margin-bottom: 28px;
+    }
+
+    .welcome h2 {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .welcome p {
+      color: #647087;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      margin: 30px 0 18px;
+      font-size: 22px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 5px 18px rgba(30, 50, 80, 0.08);
+      border: 1px solid #e4eaf3;
+      display: flex;
+      flex-direction: column;
+      min-height: 230px;
+    }
+
+    .card h3 {
+      color: #243b64;
+      font-size: 20px;
+      margin-bottom: 13px;
+    }
+
+    .card p {
+      color: #647087;
+      line-height: 1.6;
+      margin-bottom: 22px;
+      flex-grow: 1;
+    }
+
+    .card button {
+      background: #315a9b;
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .card button:hover {
+      background: #203f73;
+    }
+
+    .scores {
+      background: white;
+      padding: 25px;
+      margin-top: 35px;
+      border-radius: 14px;
+      box-shadow: 0 5px 18px rgba(30, 50, 80, 0.08);
+    }
+
+    .scores h2 {
+      color: #243b64;
+      margin-bottom: 22px;
+    }
+
+    .score-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+    }
+
+    .score-item {
+      background: #f3f6fb;
+      padding: 18px;
+      border-radius: 10px;
+      border-left: 4px solid #315a9b;
+    }
+
+    .score-item strong {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .score-item span {
+      color: #315a9b;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #647087;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 23px;
+      }
+
+      .welcome h2 {
+        font-size: 22px;
+      }
+
+      main {
+        margin-top: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div>
+      <h1>Speak2Career</h1>
+      <p>Your English and Interview Practice Portal</p>
+    </div>
+
+    <button class="logout" onclick="logout()">Logout</button>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <h2>Welcome to Your Dashboard!</h2>
+      <p>
+        Improve your English communication, speaking confidence,
+        and interview skills through daily practice.
+      </p>
+    </section>
+
+    <h2 class="section-title">Practice Modules</h2>
+
+    <section class="cards">
+
+      <div class="card">
+        <h3>Self Introduction</h3>
+        <p>
+          Practice introducing yourself and improve your
+          confidence for interviews.
+        </p>
+        <button onclick="openPage('self introduction.html')">
+          Start Practice
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>Group Discussion</h3>
+        <p>
+          Practice discussion topics, express your opinions,
+          and improve your speaking skills.
+        </p>
+        <button onclick="openPage('group discussion.html')">
+          Start Practice
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>HR Interview</h3>
+        <p>
+          Prepare for common HR questions and practice
+          answering confidently.
+        </p>
+        <button onclick="openPage('hr interview.html')">
+          Start Practice
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>Daily English</h3>
+        <p>
+          Learn everyday English sentences and improve
+          your English step by step.
+        </p>
+        <button onclick="openPage('daily english.html')">
+          Learn English
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>JAM Topics</h3>
+        <p>
+          Practice Just A Minute topics to improve fluency,
+          vocabulary, and confidence.
+        </p>
+        <button onclick="openPage('jam.html')">
+          Start JAM
+        </button>
+      </div>
+
+      <!-- Technical Interview Questions -->
+      <div class="card">
+        <h3>Technical Interview Questions</h3>
+        <p>
+          Prepare for technical interviews with subject-wise
+          questions on C, Java, Python, HTML, SQL, DBMS,
+          Operating Systems, and Computer Networks.
+        </p>
+        <button onclick="openPage('technical-questions.html')">
+          Start Technical Practice
+        </button>
+      </div>
+
+    </section>
+
+    <section class="scores">
+      <h2>Your Practice Scores</h2>
+
+      <div class="score-list">
+
+        <div class="score-item">
+          <strong>Self Introduction</strong>
+          <span id="selfScore">Not attempted yet</span>
+        </div>
+
+        <div class="score-item">
+          <strong>Group Discussion</strong>
+          <span id="gdScore">Not attempted yet</span>
+        </div>
+
+        <div class="score-item">
+          <strong>HR Interview</strong>
+          <span id="hrScore">Not attempted yet</span>
+        </div>
+
+        <div class="score-item">
+          <strong>Daily English</strong>
+          <span id="englishScore">Not attempted yet</span>
+        </div>
+
+        <div class="score-item">
+          <strong>JAM Topics</strong>
+          <span id="jamScore">Not attempted yet</span>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Speak2Career | Practice Today, Succeed Tomorrow
+  </footer>
+
+  <script>
+    function openPage(fileName) {
+      window.location.href = "./" + fileName;
+    }
+
+    function logout() {
+      window.location.href = "./index.html";
+    }
+
+    function showScore(elementId, storageKey) {
+      const element = document.getElementById(elementId);
+
+      try {
+        const saved = localStorage.getItem(storageKey);
+
+        if (!saved) {
+          return;
+        }
+
+        const data = JSON.parse(saved);
+
+        if (
+          data &&
+          typeof data === "object" &&
+          data.score !== undefined
+        ) {
+          element.textContent = data.score + " / 100";
+        } else if (typeof data === "number") {
+          element.textContent = data + " / 100";
+        }
+      } catch (error) {
+        element.textContent = "Not attempted yet";
+      }
+    }
+
+    showScore("selfScore", "speak2career_self_intro");
+    showScore("gdScore", "speak2career_group_discussion");
+    showScore("hrScore", "speak2career_hr_interview");
+    showScore("englishScore", "speak2career_daily_english");
+    showScore("jamScore", "speak2career_jam");
+  </script>
+
+</body>
+</html>
+```
