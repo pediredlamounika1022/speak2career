@@ -1,0 +1,470 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Interview Practice | Speak2Career</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f1f5fb;
+    color: #222;
+}
+
+.container {
+    max-width: 760px;
+    margin: 20px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px #00000012;
+}
+
+h1 {
+    color: #173b70;
+    text-align: center;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+}
+
+.progress {
+    height: 9px;
+    background: #e1e6ef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: #2467ad;
+    transition: width 0.3s;
+}
+
+.question-box {
+    padding: 20px;
+    background: #edf3fb;
+    border-radius: 10px;
+    margin-bottom: 18px;
+}
+
+#question {
+    color: #173b70;
+    line-height: 1.5;
+}
+
+textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 13px;
+    border: 1px solid #bdc7d6;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    resize: vertical;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 16px;
+}
+
+button {
+    padding: 11px 15px;
+    border: none;
+    border-radius: 7px;
+    background: #174b8a;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #103563;
+}
+
+button:disabled {
+    background: #a6afbd;
+    cursor: not-allowed;
+}
+
+#message {
+    line-height: 1.5;
+    margin-top: 15px;
+    color: #174b8a;
+}
+
+#scoreBox {
+    display: none;
+    margin-top: 22px;
+    padding: 22px;
+    border-radius: 10px;
+    background: #edf7ef;
+    text-align: center;
+}
+
+#score {
+    font-size: 32px;
+    font-weight: bold;
+    color: #206b37;
+}
+
+.small {
+    color: #666;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+@media (max-width: 500px) {
+    .container {
+        padding: 17px;
+    }
+
+    button {
+        flex: 1 1 140px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>HR Interview Practice</h1>
+    <p class="subtitle">Practise your answers and improve your confidence.</p>
+
+    <div class="progress">
+        <div id="progressBar"></div>
+    </div>
+
+    <div class="question-box">
+        <p id="questionNumber">Question 1 of 6</p>
+        <h3 id="question">Tell me about yourself.</h3>
+    </div>
+
+    <label for="answer"><b>Your Answer</b></label>
+    <br><br>
+
+    <textarea id="answer"
+        placeholder="Type your answer or use Start Speaking..."></textarea>
+
+    <div class="buttons">
+        <button onclick="listenQuestion()">🔊 Listen to Question</button>
+        <button onclick="startVoice()">🎤 Start Speaking</button>
+        <button onclick="stopVoice()">⏹ Stop Speaking</button>
+        <button onclick="saveAnswer()">💾 Save Answer</button>
+        <button id="nextBtn" onclick="nextQuestion()">Next Question ➜</button>
+    </div>
+
+    <p id="message" role="status" aria-live="polite"></p>
+
+    <div id="scoreBox">
+        <h2>Interview Practice Result</h2>
+        <p id="score">0 / 100</p>
+        <p id="scoreMessage"></p>
+        <p id="answeredCount"></p>
+        <p class="small">
+            This is an automated practice score based on answer length
+            and relevant keywords. It does not measure your actual
+            speaking ability or guarantee interview performance.
+        </p>
+        <button onclick="restartInterview()">Practise Again</button>
+    </div>
+
+    <br>
+    <button onclick="goBack()">← Back to Dashboard</button>
+</div>
+
+<script>
+const questions = [
+    {
+        question: "Tell me about yourself.",
+        keywords: ["name", "bca", "student", "skills", "career", "learn"]
+    },
+    {
+        question: "What are your strengths?",
+        keywords: ["strength", "hardworking", "communication", "team", "learn", "positive"]
+    },
+    {
+        question: "What is your weakness, and how are you improving it?",
+        keywords: ["weakness", "improve", "practice", "learn", "confidence", "work"]
+    },
+    {
+        question: "Why should we hire you?",
+        keywords: ["skills", "learn", "team", "hardworking", "contribute", "opportunity"]
+    },
+    {
+        question: "Why do you want this job?",
+        keywords: ["job", "career", "opportunity", "skills", "experience", "company"]
+    },
+    {
+        question: "What are your career goals?",
+        keywords: ["career", "goal", "skills", "experience", "developer", "grow"]
+    }
+];
+
+let current = 0;
+let answers = Array(questions.length).fill("");
+let recognition = null;
+let listening = false;
+let finished = false;
+
+const answerBox = document.getElementById("answer");
+const message = document.getElementById("message");
+
+function showQuestion() {
+    document.getElementById("question").textContent =
+        questions[current].question;
+
+    document.getElementById("questionNumber").textContent =
+        "Question " + (current + 1) + " of " + questions.length;
+
+    answerBox.value = answers[current];
+
+    document.getElementById("progressBar").style.width =
+        (current / questions.length * 100) + "%";
+
+    document.getElementById("nextBtn").textContent =
+        current === questions.length - 1
+            ? "Finish Interview ✓"
+            : "Next Question ➜";
+
+    message.textContent = "";
+}
+
+function listenQuestion() {
+    if (!("speechSynthesis" in window)) {
+        message.textContent =
+            "Question audio is not supported by this browser.";
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(
+        questions[current].question
+    );
+
+    speech.lang = "en-IN";
+    speech.rate = 0.85;
+
+    window.speechSynthesis.speak(speech);
+}
+
+function startVoice() {
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        message.textContent =
+            "Voice input is not supported here. Try an updated Chrome browser or type your answer.";
+        return;
+    }
+
+    stopVoice();
+
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-IN";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    let finalTranscript = "";
+
+    recognition.onresult = function(event) {
+        let interimTranscript = "";
+
+        for (let i = 0; i < event.results.length; i++) {
+            const text = event.results[i][0].transcript;
+
+            if (event.results[i].isFinal) {
+                if (i >= event.resultIndex) {
+                    finalTranscript += text + " ";
+                }
+            } else {
+                interimTranscript += text;
+            }
+        }
+
+        answerBox.value =
+            (answers[current] ? answers[current] + " " : "") +
+            finalTranscript.trim() +
+            (interimTranscript ? " " + interimTranscript : "");
+
+        message.textContent = "Listening... speak clearly.";
+    };
+
+    recognition.onerror = function(event) {
+        listening = false;
+        message.textContent =
+            "Voice input stopped (" + event.error +
+            "). You can type your answer instead.";
+    };
+
+    recognition.onend = function() {
+        listening = false;
+        answers[current] = answerBox.value.trim();
+    };
+
+    try {
+        recognition.start();
+        listening = true;
+        message.textContent = "Listening... Please speak now.";
+    } catch (error) {
+        message.textContent =
+            "Could not start voice input. Please try again.";
+    }
+}
+
+function stopVoice() {
+    if (recognition && listening) {
+        listening = false;
+
+        try {
+            recognition.stop();
+        } catch (error) {
+            // Recognition may already have stopped.
+        }
+    }
+}
+
+function saveAnswer() {
+    stopVoice();
+
+    answers[current] = answerBox.value.trim();
+
+    try {
+        localStorage.setItem(
+            "speak2careerHRAnswers",
+            JSON.stringify(answers)
+        );
+
+        message.textContent = answers[current]
+            ? "Your answer has been saved!"
+            : "Please type or speak your answer before saving.";
+    } catch (error) {
+        message.textContent =
+            "Your answer is available on this page but could not be saved.";
+    }
+}
+
+function nextQuestion() {
+    if (finished) return;
+
+    stopVoice();
+    answers[current] = answerBox.value.trim();
+
+    if (current < questions.length - 1) {
+        current++;
+        showQuestion();
+    } else {
+        showScore();
+    }
+}
+
+function showScore() {
+    finished = true;
+
+    const total = questions.length;
+    let totalPoints = 0;
+    let answered = 0;
+
+    questions.forEach((item, i) => {
+        const text = (answers[i] || "").trim().toLowerCase();
+
+        if (!text) return;
+
+        answered++;
+
+        const words = text.split(/\s+/).filter(Boolean);
+        const uniqueWords = new Set(words);
+        const keywordMatches = item.keywords.filter(word =>
+            text.includes(word)
+        ).length;
+
+        // Practice score only: answer completeness and relevance.
+        const lengthPoints = Math.min(words.length / 35, 1) * 50;
+        const keywordPoints =
+            (keywordMatches / item.keywords.length) * 40;
+        const varietyPoints =
+            Math.min(uniqueWords.size / 15, 1) * 10;
+
+        totalPoints += Math.min(
+            100,
+            Math.round(lengthPoints + keywordPoints + varietyPoints)
+        );
+    });
+
+    const score = Math.round(totalPoints / total);
+
+    document.getElementById("score").textContent =
+        score + " / 100";
+
+    document.getElementById("scoreMessage").textContent =
+        score >= 75
+            ? "Good practice! Keep improving your answers."
+            : score >= 45
+                ? "Good start! Try giving more complete and relevant answers."
+                : "Keep practising. Try answering every question with a few clear sentences.";
+
+    document.getElementById("answeredCount").textContent =
+        "Questions answered: " + answered + " out of " + total;
+
+    document.getElementById("scoreBox").style.display = "block";
+    document.getElementById("progressBar").style.width = "100%";
+    document.getElementById("nextBtn").disabled = true;
+
+    message.textContent = "Interview practice completed!";
+    document.getElementById("scoreBox").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+function restartInterview() {
+    stopVoice();
+    window.speechSynthesis?.cancel();
+
+    current = 0;
+    answers = Array(questions.length).fill("");
+    finished = false;
+
+    try {
+        localStorage.removeItem("speak2careerHRAnswers");
+    } catch (error) {}
+
+    document.getElementById("scoreBox").style.display = "none";
+    document.getElementById("nextBtn").disabled = false;
+
+    showQuestion();
+}
+
+function goBack() {
+    stopVoice();
+
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+
+    window.location.href = "dashboard.html";
+}
+
+showQuestion();
+</script>
+
+</body>
+</html>
